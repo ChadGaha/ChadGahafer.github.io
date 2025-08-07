@@ -28,7 +28,7 @@
         </header>
 
         <p>
-            I love the NFL and analytics associated with it. This project focuses on creating a database of historical NFL statistics for efficient querying and further analysis. Below, you can read about the step by step process that went into this.
+            I love the NFL and analytics associated with it. This project focuses on creating a database of historical NFL statistics for efficient querying and further analysis. Below, you can read about the step by step process that went into developing this.
         </p>
 
         <h2>Key Features</h2>
@@ -50,7 +50,7 @@
           <ul>
               <li>I quickly realized I had a problem—NFL teams have changed their name or location, and the way I made my teams table was based on the current team name. The data in ProFootballReference was based on the team name at the time the of that season's playing. I needed a way to connect old team names, like the St. Louis Rams or Houston Oilers, with their franchise.</li>
               <li>Thus, <strong>team_aliases</strong> was born. I now had a way to link old team names with their modern equivalent.</li>
-              <li>Below is the code used for both the creation of <strong>team_aliases</strong> and populating it. You can see how I had to access the data, parse it, and make sure that it loaded in correclty with each alias being linked to the proper team.</li>
+              <li>Below is the code used for both the creation of <strong>team_aliases</strong> and populating it. You can see how I had to access the data, parse it, and ensure that it loaded in correclty with each alias being linked to the proper team.</li>
               <pre><code>
 import pandas as pd
 import sqlite3
@@ -132,14 +132,14 @@ conn.commit()
         <h2>Data Ingestion</h2>
         <ul>
             <li>I populated the database using Python scripts to webscrape from ProFootballReference.</li>
-            <li>Each script creates a table with my pre-defined schema, accesses one year of data, parses that data, loads it into the database, and then loops back through to do it again with another year of data.</li>
+            <li>Each script creates a table with my pre-defined schema, accesses one year of data, parses that data, loads it into the database, and then loops back through again with the next year of data.</li>
             <li>I needed to write each script to accurately identify the data I wanted loaded in.</li>
             </ul>
         
         <h2>Challenges & Solutions</h2>
         <ul>
             <li>I wasn't careful during initial testing and was put in jail by ProFootballReference. I hit their site too many times and flagged my IP as potentially spamming. To avoid this, I implemented a limiter that waited randomly between 6 and 10 seconds before accessing the next url.</li>
-            <li>I assumed that each page's data would be consistent, but this was wrong. The column order changes for the table I used for to poulate season_defensive_stats. Therefore, I added logic which parsed the data correctly based on how many columns were present in the table I was scraping data from.</li>
+            <li>I assumed that each page's data would be consistent, but this was wrong. The column order changes for the table I used for to populate season_defensive_stats. Therefore, I added logic which parsed the data correctly based on how many columns were present in the table I was scraping data from.</li>
             <li>I plan to fix that, but since most NFL data analysis should only include seasons after the 1970 AFL-NFL merger (and the defunct teams all had their last season before that date), that isn't a priority.</li>
             </ul>
         
