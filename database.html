@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Database Project</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+<body class="is-preload">
+
+  <!-- Wrapper -->
+  <div id="wrapper">
+
+    <!-- Header -->
+    <header id="header">
+      <a href="index.html" class="logo">← Back to Portfolio</a>
+    </header>
+
+    <!-- Main -->
+    <div id="main">
+
+      <!-- Post -->
+      <section class="post">
+        <header class="major">
+          <h1>Building a Relational NFL Database</h1>
+          <p>A hands-on project to create a clean, queryable structure for historical NFL data</p>
+        </header>
+
+        <p>
+            I love the NFL and analytics associated with it. This project focuses on creating a database of historical NFL statistics for efficient querying anf further analysis. Below, you can read about the step by step process that went into this.
+        </p>
+
+        <h2>Key Features</h2>
+        <ul>
+          <li>Normalized schema with <strong>teams</strong>, <strong>team_aliases</strong>, <strong>season_offensive_stats</strong>, <strong>season_defensive_stats</strong>, and <strong>season_records</strong> tables</li>
+          <li>Scripts to scrape and load web data from <a href="https://www.pro-football-reference.com/"><strong>Pro Football Reference</strong></a> using <strong>Python</strong></li>
+        </ul>
+        
+
+        <h2>Planning and Design</h2>
+        <ul>
+            <li>I wanted to make the database as efficient as possible, so I had to learn about and implement normalization. Anything that needed to be rendered as a string should only be stored in the database once, and I needed to use primary and foreign keys effectively.</li>
+            <li>Therefore, my first table was <strong>teams</strong>. From there, I built out a star schema because data such as records and stats belong to teams. </li>
+            <li>This was all done with old fashioned pen and paper. I drew out the schema and decided what data I wanted in each table.</li>
+            <li>I ended up with 4 tables: teams, season_records, season_offensive_stats, and season_defensive_stats. The 3 additional tables all contained data related directly to a team.</li>
+          </ul>
+
+          <h2>First Roadblock</h2>
+          <ul>
+              <li>I quickly realized I had a problem—NFL teams have changed their name or location, and the way I made my teams table was based on the current team name. The data in ProFootballReference was based on the team name at the time the of that season's playing. I needed a way to connect old team names, like the St. Louis Rams or Houston Oilers, with their franchise.</li>
+              <li>Thus, <strong>team_aliases</strong> was born. I now had a way to link old team names with their modern equivalent.</li>
+              <li>Below is the code used for both the creation of <strong>team_aliases</strong> and populating it. You can see how I had to access the data, parse it, and make sure that it loaded in correclty with each alias being linked to the proper team.</li>
+              <pre><code>
+import pandas as pd
+import sqlite3
+
+url = 'https://www.pro-football-reference.com/teams/index.htm'
+
+tables = pd.read_html(url)
+
+teams = tables[0]
+
+teams.to_csv('old_teams.csv')
+# I was not confident in reading and manipulating dataframes when I converted the table to a CSV
+# If I were rewriting this code I would skip this intermiediary step, 
+# but it allowed me to work through getting the info I wanted without constantly requesting the website
+
+conn = sqlite3.connect('nfldb.sqlite')
+cur = conn.cursor()
+
+teams = cur.execute("SELECT (location || ' ' || name) AS team_names, id FROM teams")
+#this query returns a value like "Kansas City Chiefs" under team_names
+
+team_dict = dict()
+team_names = list()
+for line in teams:
+    team_dict[line[0]] = line[1] 
+#puts all current team_names with their id in the team_dict with key: value pairs team_name: id
+    
+#SQL Query to create the team_aliases table
+cur.executescript('''DROP TABLE IF EXISTS team_aliases;
+                    CREATE TABLE team_aliases (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    location TEXT,
+                    name TEXT,
+                    start_year INTEGER,
+                    end_year INTEGER,
+                    current_team_id INTEGER,
+                    FOREIGN KEY (current_team_id) REFERENCES teams (id))
+                    ''')
+
+csv = open('old_teams.csv')
+current_team_id = None
+count = 0
+for info in csv:
+    count = count + 1
+    if count == 1 or count == 2: 
+        continue #have to skip the first two rows as they are headers
+    
+    info_split = info.split(',')
+    name = info_split[1].strip()
+    name_split = name.split() #gets the location of the team and mascot
+    start = info_split[2] #year the alias started
+    end = info_split[3] #year the alias ended
+    if name in team_dict: #the csv is set up listing the current team first, goes through their old names, and then lists another current team
+        current_team_id = team_dict.get(name) #this grabs the team id from the dictionary to match it
+        continue #if no aliases are there because the team name is current, then it continues the loop!
+    foreign_id = current_team_id
+    if len(name_split) == 2: #most names follow the format of 'Baltimore Colts.' This grabs them and 
+        loc = name_split[0].strip()
+        name = name_split[1].strip()
+    elif name_split[1] == 'Football':  # the Washington Football Team is the only mascot with a two part name in the CSV. I made this exception to grab them
+        loc = name_split[0].strip()
+        name = 'Football Team'
+    else:
+        loc = name_split[0].strip() + ' ' + name_split[1].strip()
+        name = name_split[2].strip() #this grabs the rest of the teams, whose format follows 'St. Louis Rams.'
+    
+    cur.execute('''INSERT INTO team_aliases (location, name, start_year, end_year, current_team_id)
+                VALUES (?, ?, ?, ?, ?)''', (loc, name, start, end, foreign_id))
+    
+    #this SQL query inserts each alias info into the team_aliases table
+
+conn.commit()
+              </code></pre>
+
+            <li> This is the only code I will directly on here; the others can be found in the github repo linked at the bottom of the page.</li>
+            </ul>
+
+        
+        <h2>Data Ingestion</h2>
+        <ul>
+            <li>I populated the database using Python scripts to webscrape from ProFootballReference.</li>
+            <li>Each script creates a table with my pre-defined schema, accesses one year of data, parses that data, loads it into the database, and then loops back through to do it again with another year of data.</li>
+            <li>I needed to write each script to accurately identify the data I wanted loaded in.</li>
+            </ul>
+        
+        <h2>Challenges & Solutions</h2>
+        <ul>
+            <li>I wasn't careful during initial testing and was put in jail by ProFootballReference. I hit their site too many times and flagged my IP as potentially spamming. To avoid this, I implemented a limiter that waited randomly between 6 and 10 sencods before accessing the next url.</li>
+            <li>I assumed that each pages data would be consistent, this was wrong. The column order changes for the table I used for to poulate season_defensive_stats. Therefore, I added logic which parsed the data correctly based on how many columns were present in the table I was scraping data from.</li>
+            <li>I still have a few NULL values in the team field for the historical season data. This is because those records and stats are from teams that do not have a corresponding current franchise. I plan to fix that, but since most NFL data analysis should only include seasons after the 1970 AFL-NFL merger annd the defunct teams all had their last season before that it isn't a priority.</li>
+            </ul>
+        
+        <h2>What's next?</h2>
+        <ul>
+            <li>I plan to come up with questions to ask that can be solved using SQL and querying the database.</li>
+            <li>Particularly interesting or involved questions will be analyzed further and visualized using pandas and matplotlib.</li>
+            <li>I'll continue to run my scripts to update the database as the next NFL season unfolds. Eventually, I will automate those scripts!</li>            
+            </ul>
+
+        <h2>Tech Used</h2>
+        <ul>
+          <li>SQLite for database structure</li>
+          <li>Python (BeautifulSoup + pandas + sqlite3) for data ingestion</li>
+          <li>SQL for further querying and analysis</li>
+        </ul>
+
+        <ul class="actions special">
+          <li><a href="https://github.com/yourusername/nfl-database" class="button" target="_blank">View on GitHub</a></li>
+        </ul>
+
+      </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+      <section>
+        <p>Thanks for reading about my project!</p>
+      </section>
+      <section>
+        <ul class="icons alt">
+          <li><a href="https://github.com/yourusername" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+        </ul>
+      </section>
+    </footer>
+
+    <!-- Copyright -->
+    <div id="copyright">
+      <ul><li>&copy; Your Name</li></ul>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/jquery.scrollex.min.js"></script>
+  <script src="assets/js/jquery.scrolly.min.js"></script>
+  <script src="assets/js/browser.min.js"></script>
+  <script src="assets/js/breakpoints.min.js"></script>
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/main.js"></script>
+
+</body>
+</html>
