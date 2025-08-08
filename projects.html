@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NFL Projects</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+        /* Ensure consistent image sizing */
+        .project-image img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header id="header">
+    <a href="index.html" class="logo">Back to Home</a>
+</header>
+
+<!-- Main -->
+<div id="main" class="wrapper">
+    <div class="inner">
+        <h1 class="major">NFL Analysis Projects</h1>
+        <div class="project-grid">
+            <!-- Project 1 -->
+            <section class="project-image">
+                <a href="queries.html" class="image"><img src="images/football query.jpg" alt="Project 1"></a>
+                <h3><a href="queries.html">Initial data exploration</a></h3>
+                <p>Querying the database using SQL. The queries are put in pandas dataframes for possible use in further anlysis.</p>
+            </section>
+
+            <!-- Project 2 -->
+            <section class="project-image">
+                <a href="projects.html" class="image"><img src="images/coming soon.jpg" alt="Project 2"></a>
+                <h3><a href="projects.html">How have rush and pass attempts changed over time?</a></h3>
+                <p>Analyzing league-wide tendencies in rushing and passing attempts.</p>
+            </section>
+
+            <!-- Project 2 -->
+            <section class="project-image">
+                <a href="projects.html" class="image"><img src="images/coming soon.jpg" alt="Project 3"></a>
+                <h3><a href="projects.html">Does offensive or defensive efficiency contribute more to winning?</a></h3>
+                <p>Analyzing EPA per play correlates with winning percentage.</p>
+            </section>
+
+            <!-- Project 3 -->
+            <!-- <section class="project-image">
+                <a href="project3.html" class="image"><img src="images/football query.jpg" alt="Project 3"></a>
+                <h3><a href="project3.html">Defensive Efficiency by Formation</a></h3>
+                <p>Which defensive schemes are most effective based on EPA allowed?</p>
+            </section> 
+        -->
+            <!-- Project 4 -->
+            <!--<section class="project-image">
+                <a href="project4.html" class="image"><img src="images/football query.jpg" alt="Project 4"></a>
+                <h3><a href="project4.html">QB Performance Under Pressure</a></h3>
+                <p>EPA and success rates of quarterbacks when facing pressure.</p>
+            </section>
+        -->
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer id="footer">
+    <section>
+        <p>More analysis coming soon. Stay tuned.</p>
+    </section>
+</footer>
+
+<!-- Scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NFL SQL Queries</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+</head>
+<body class="is-preload">
+
+    <!-- Header -->
+    <header id="header">
+        <a href="https://github.com/ChadGaha/nfl-analysis/blob/main/nfldb_queries.py" class="logo">NFL SQL Queries</a>
+    </header>
+
+    <!-- Wrapper -->
+    <div id="wrapper">
+
+        <!-- Main -->
+        <section id="main" class="wrapper">
+            <div class="inner">
+
+                <!-- Navigation Buttons -->
+                <ul class="actions">
+                    <li><a href="index.html" class="button">Back to Home</a></li>
+                    <li><a href="projects.html" class="button">Back to NFL Analysis Projects</a></li>
+                </ul>
+
+                <h1 class="major">NFL SQL Query Library</h1>
+                <p>This page showcases a collection of SQLite queries used to explore NFL data from my NFL database. All of these queries are saved in <code>nfldb_queries.py</code> as functions returning a pandas dataframe, making furhter analysis and visualization easier. Each section includes a brief description, the actual SQL code, and a "Show Result" drop down.</p>
+
+               <!-- Query Block 1 -->
+               <section>
+                <h2>1. Which team had the most wins in 2020?</h2>
+                <p>This query shows the full name of the team that had the most wins in 2020.</p>
+              <pre><code>SELECT (teams.location || " " || teams.name) AS team, season_records.wins
+FROM season_records
+LEFT JOIN teams
+    ON season_records.team_id = teams.id
+WHERE season = 2020
+ORDER BY wins DESC
+LIMIT 1
+</code></pre>
+              
+                <details>
+                  <summary>Show Result</summary>
+                  <table>
+                    <thead>
+                        <tr><th>team</th><th>wins</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>Kansas City Chiefs</td><td>14</td></tr>
+                      </tbody>
+                  </table>
+                </details>
+              </section>
+              
+
+
+                <!-- Query Block 2 -->
+                <section>
+                    <h2>2. Which teams had a positive point diferential in 2021?</h2>
+                    <p>This query filters for the year 2021 and then shows the full name and point differential of teams with a positive point differential.</p>
+<pre><code>SELECT player_name, season_year, SUM(passing_yards) AS total_yards
+FROM player_stats
+WHERE position = 'QB'
+GROUP BY player_name, season_year
+ORDER BY total_yards DESC
+LIMIT 5;
+</code></pre>
+
+                <details>
+                    <summary>Show Result</summary>
+                    <table>
+                        <thead>
+                            <tr><th>team</th><th>point_differential</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Buffalo Bills</td><td>194</td></tr>
+                            <tr><td>New England Patriots</td><td>159</td></tr>
+                            <tr><td>Cincinnati Bengals</td><td>84</td></tr>
+                            <tr><td>Tennessee Titans</td><td>65</td></tr>
+                            <tr><td>Indianapolis Colts</td><td>86</td></tr>
+                            <tr><td>Kansas City Chiefs</td><td>116</td></tr>
+                            <tr><td>Los Angeles Chargers</td><td>15</td></tr>
+                            <tr><td>Denver Broncos</td><td>13</td></tr>
+                            <tr><td>Dallas Cowboys</td><td>172</td></tr>
+                            <tr><td>Philadelphia Eagles</td><td>59</td></tr>
+                            <tr><td>Green Bay Packers</td><td>79</td></tr>
+                            <tr><td>Tampa Bay Buccaneers</td><td>158</td></tr>
+                            <tr><td>New Orleans Saints</td><td>29</td></tr>
+                            <tr><td>Los Angeles Rams</td><td>88</td></tr>
+                            <tr><td>Arizona Cardinals</td><td>83</td></tr>
+                            <tr><td>San Francisco 49ers</td><td>62</td></tr>
+                            <tr><td>Seattle Seahawks</td><td>29</td></tr>
+                        </tbody>
+                    </table>
+                </details>
+                </section>
+                
+                <!-- Query Block 3 -->
+               <section>
+                <h2>3. Which teams scored the most points in a single season?</h2>
+                <p>This query shows the 5 highest scoring teams in the databse, the amount they scored, and the season they did it.</p>
+              
+                <pre><code>SELECT (t.location || " " || t.name) AS team, sr.points_forced, sr.season
+FROM season_records AS sr
+LEFT JOIN teams AS t
+    ON sr.team_id = t.id
+ORDER BY points_forced DESC
+LIMIT 5;</code></pre>
+
+                <details>
+                  <summary>Show Result</summary>
+                  <table>
+                    <thead>
+                        <tr><th>team</th><th>points_forced</th><th>season</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td>Denver Broncos</td><td>606</td><td>2013</td></tr>
+                        <tr><td>New England Patriots</td><td>589</td><td>2007</td></tr>
+                        <tr><td>Kansas City Chiefs</td><td>565</td><td>2018</td></tr>
+                        <tr><td>Detroit Lions</td><td>564</td><td>2024</td></tr>
+                        <tr><td>Green Bay Packers</td><td>560</td><td>2011</td></tr>
+                      </tbody>
+                  </table>
+                </details>
+              </section>
+              
+
+                <!-- Query Block template -->
+               <!--<section>
+                <h2>1. Template for questions</h2>
+                <p>query description</p>
+              
+                <pre><code>SELECT (teams.location || " " || teams.name) AS team, season_records.wins
+FROM season_records
+LEFT JOIN teams
+    ON season_records.team_id = teams.id
+WHERE season = 2020
+ORDER BY wins DESC
+LIMIT 1</code></pre>
+              
+                <details>
+                  <summary>Show Result</summary>
+                  <table>
+                    paste result in here
+                  </table>
+                </details>
+              </section>
+              
+            -->
+
+                <!-- Add more queries here -->
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer" class="wrapper alt">
+        <div class="inner">
+            <ul class="menu">
+                <li>&copy; Chad Gahafer. All rights reserved.</li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+</body>
+</html>
