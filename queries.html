@@ -1072,6 +1072,112 @@ WHERE off_stats.pass_expected_points IS NOT NULL
                 </div>
                 </details>
 
+
+                <!-- Query Block template -->
+               <section>
+                <h2>7. What years did passing ratio increase the most?</h2>
+                <p>I use a CTE and the window function LAG() to show what seasons the pass attempt to rush attempt ration increased the most.</p>
+              
+                <pre><code>WITH o_stats AS (
+SELECT season,
+    AVG(games) AS games,
+    AVG(rush_attempts) / games AS rush_attempts, 
+    AVG(rush_yards) / games AS rush_yards,
+    AVG(rush_tds) / games  AS rush_tds,
+    AVG(fumbles) / games  AS fumbles,
+    AVG(rush_expected_points) / games  AS rush_expected_points,
+    AVG(pass_attempts) / games  AS pass_attempts,
+    AVG(completions) / games  AS completions ,
+    AVG(pass_yards + sack_yards) / games AS pass_yards,
+    AVG(pass_tds) / games  AS pass_touchdowns,
+    AVG(interceptions) / games  AS interceptions,
+    AVG(sacks) / games AS sacks,
+    AVG(sack_yards) / games  AS sack_yards_lost,
+    AVG( fourth_quarter_comebacks) / games  AS fourth_quarter_comebacks,
+    AVG(game_winning_drives) / games  AS game_winning_drives,
+    AVG(pass_expected_points) / games AS pass_expected_points,
+    AVG(pass_yards + sack_yards + rush_yards) / games AS total_yards
+FROM season_offensive_stats AS "sos"
+WHERE season > 1969
+GROUP BY season)
+    
+SELECT season, 
+    pass_attempts, 
+    rush_attempts, 
+    (pass_attempts / rush_attempts) AS pass_rush_ratio,
+    (pass_attempts / rush_attempts) 
+        - LAG(pass_attempts / rush_attempts) OVER (ORDER BY season) AS yoy_pass_rush_diff
+FROM o_stats
+ORDER BY yoy_pass_rush_diff DESC'''</code></pre>
+              
+                <details>
+                <summary>Show result</summary>
+                <div style="overflow-x: auto; max-width: 100%;">
+                    <table border="1">
+                    
+                        <thead>
+                            <tr><th>season</th><th>pass_attempts</th><th>rush_attempts</th><th>pass_rush_ratio</th><th>yoy_pass_rush_diff</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>1979.0</td><td>28.970982142857142</td><td>33.890625</td><td>0.8548376473687677</td><td>0.11897450584466196</td></tr>
+                            <tr><td>1980.0</td><td>30.591517857142858</td><td>32.107142857142854</td><td>0.9527947719688544</td><td>0.09795712460008676</td></tr>
+                            <tr><td>1999.0</td><td>33.79032258064516</td><td>27.31451612903226</td><td>1.2370829642751697</td><td>0.09549982748271701</td></tr>
+                            <tr><td>1974.0</td><td>26.39835164835165</td><td>34.35989010989011</td><td>0.7682897577356681</td><td>0.08453898469918086</td></tr>
+                            <tr><td>2007.0</td><td>33.291015625</td><td>27.31640625</td><td>1.2187187187187187</td><td>0.08429634729212498</td></tr>
+                            <tr><td>1978.0</td><td>26.404017857142858</td><td>35.88169642857143</td><td>0.7358631415241057</td><td>0.06787679340123864</td></tr>
+                            <tr><td>1995.0</td><td>34.78958333333333</td><td>27.497916666666665</td><td>1.2651716039093872</td><td>0.06549032900898899</td></tr>
+                            <tr><td>1994.0</td><td>33.607142857142854</td><td>28.013392857142858</td><td>1.1996812749003982</td><td>0.06328896963392072</td></tr>
+                            <tr><td>2018.0</td><td>34.513671875</td><td>25.921875</td><td>1.331449668474985</td><td>0.0600574474644433</td></tr>
+                            <tr><td>1989.0</td><td>32.004464285714285</td><td>29.169642857142858</td><td>1.0971839608203244</td><td>0.05668620660487633</td></tr>
+                            <tr><td>2015.0</td><td>35.73828125</td><td>26.34375</td><td>1.3566132858837485</td><td>0.05043268974114179</td></tr>
+                            <tr><td>1991.0</td><td>31.138392857142858</td><td>27.408482142857142</td><td>1.1360860004886393</td><td>0.049765473242215696</td></tr>
+                            <tr><td>1984.0</td><td>31.975446428571427</td><td>30.828125</td><td>1.037216711317066</td><td>0.048757067379271324</td></tr>
+                            <tr><td>1993.0</td><td>32.174107142857146</td><td>28.3125</td><td>1.1363923052664775</td><td>0.045512799937375004</td></tr>
+                            <tr><td>1982.0</td><td>31.480158730158728</td><td>30.805555555555557</td><td>1.0218987504830606</td><td>0.04450696663966369</td></tr>
+                            <tr><td>2002.0</td><td>33.7734375</td><td>27.54296875</td><td>1.2262090483619346</td><td>0.04217568088059398</td></tr>
+                            <tr><td>2009.0</td><td>33.267578125</td><td>27.515625</td><td>1.2090431572969904</td><td>0.03856366158199642</td></tr>
+                            <tr><td>2010.0</td><td>33.728515625</td><td>27.1875</td><td>1.2405890804597701</td><td>0.03154592316277971</td></tr>
+                            <tr><td>2012.0</td><td>34.7421875</td><td>27.197265625</td><td>1.2774147217235188</td><td>0.031261976751791654</td></tr>
+                            <tr><td>2023.0</td><td>33.6672794117647</td><td>26.84926470588235</td><td>1.253936738326715</td><td>0.030578579897466485</td></tr>
+                            <tr><td>2013.0</td><td>35.421875</td><td>27.091796875</td><td>1.3074760291255136</td><td>0.030061307401994863</td></tr>
+                            <tr><td>1981.0</td><td>31.651785714285715</td><td>32.38392857142857</td><td>0.9773917838433969</td><td>0.02459701187454244</td></tr>
+                            <tr><td>1985.0</td><td>32.19419642857143</td><td>30.4375</td><td>1.0577148723965972</td><td>0.020498161079531174</td></tr>
+                            <tr><td>1988.0</td><td>31.542410714285715</td><td>30.314732142857142</td><td>1.040497754215448</td><td>0.01759988477879615</td></tr>
+                            <tr><td>2016.0</td><td>35.732421875</td><td>26.017578125</td><td>1.3733953907364311</td><td>0.01678210485268261</td></tr>
+                            <tr><td>1986.0</td><td>32.296875</td><td>30.154017857142858</td><td>1.071063735287586</td><td>0.0133488628909888</td></tr>
+                            <tr><td>2005.0</td><td>32.15625</td><td>28.076171875</td><td>1.145321739130435</td><td>0.011831303865671883</td></tr>
+                            <tr><td>2011.0</td><td>34.00390625</td><td>27.287109375</td><td>1.2461527449717271</td><td>0.0055636645119570005</td></tr>
+                            <tr><td>2019.0</td><td>34.869140625</td><td>26.146484375</td><td>1.333607230895645</td><td>0.0021575624206600086</td></tr>
+                            <tr><td>2014.0</td><td>34.919921875</td><td>26.734375</td><td>1.3061805961426067</td><td>-0.0012954329829069078</td></tr>
+                            <tr><td>2004.0</td><td>31.94140625</td><td>28.1796875</td><td>1.133490435264763</td><td>-0.003330628975656058</td></tr>
+                            <tr><td>2001.0</td><td>32.622983870967744</td><td>27.552419354838708</td><td>1.1840333674813406</td><td>-0.009356995902442433</td></tr>
+                            <tr><td>1990.0</td><td>30.169642857142858</td><td>27.772321428571427</td><td>1.0863205272464236</td><td>-0.01086343357390085</td></tr>
+                            <tr><td>2006.0</td><td>32.009765625</td><td>28.216796875</td><td>1.1344223714265937</td><td>-0.010899367703841145</td></tr>
+                            <tr><td>1998.0</td><td>32.26875</td><td>28.266666666666666</td><td>1.1415831367924527</td><td>-0.011653904046318386</td></tr>
+                            <tr><td>1975.0</td><td>27.39835164835165</td><td>36.26098901098901</td><td>0.7555875445109479</td><td>-0.012702213224720205</td></tr>
+                            <tr><td>2021.0</td><td>34.39705882352941</td><td>26.641544117647058</td><td>1.2911060511971297</td><td>-0.015303461563891174</td></tr>
+                            <tr><td>1997.0</td><td>32.76875</td><td>28.414583333333333</td><td>1.153237040838771</td><td>-0.021251704195803134</td></tr>
+                            <tr><td>2020.0</td><td>35.19140625</td><td>26.9375</td><td>1.306409512761021</td><td>-0.027197718134624127</td></tr>
+                            <tr><td>1983.0</td><td>31.354910714285715</td><td>31.720982142857142</td><td>0.9884596439377947</td><td>-0.03343910654526583</td></tr>
+                            <tr><td>2024.0</td><td>32.74080882352941</td><td>26.998161764705884</td><td>1.2127051133655613</td><td>-0.041231624961153734</td></tr>
+                            <tr><td>1977.0</td><td>24.964285714285715</td><td>37.37244897959183</td><td>0.6679863481228671</td><td>-0.041508154332011604</td></tr>
+                            <tr><td>2000.0</td><td>32.90725806451613</td><td>27.574596774193548</td><td>1.193390363383783</td><td>-0.04369260089138671</td></tr>
+                            <tr><td>1992.0</td><td>29.928571428571427</td><td>27.435267857142858</td><td>1.0908795053291025</td><td>-0.045206495159536786</td></tr>
+                            <tr><td>1976.0</td><td>26.1734693877551</td><td>36.890306122448976</td><td>0.7094945024548787</td><td>-0.04609304205606923</td></tr>
+                            <tr><td>1987.0</td><td>32.121428571428574</td><td>31.402380952380952</td><td>1.022897869436652</td><td>-0.048165865850934075</td></tr>
+                            <tr><td>2008.0</td><td>32.27734375</td><td>27.576171875</td><td>1.170479495714994</td><td>-0.04823922300372474</td></tr>
+                            <tr><td>1973.0</td><td>24.299450549450547</td><td>35.53846153846154</td><td>0.6837507730364872</td><td>-0.05148095020111065</td></tr>
+                            <tr><td>1971.0</td><td>25.857142857142858</td><td>32.35164835164835</td><td>0.7992527173913044</td><td>-0.05764021472905956</td></tr>
+                            <tr><td>1972.0</td><td>24.755494505494507</td><td>33.67032967032967</td><td>0.7352317232375979</td><td>-0.06402099415370655</td></tr>
+                            <tr><td>2022.0</td><td>33.21507352941177</td><td>27.15073529411765</td><td>1.2233581584292486</td><td>-0.06774789276788118</td></tr>
+                            <tr><td>2003.0</td><td>32.212890625</td><td>28.3359375</td><td>1.136821064240419</td><td>-0.0893879841215155</td></tr>
+                            <tr><td>1996.0</td><td>33.2625</td><td>28.320833333333333</td><td>1.1744887450345742</td><td>-0.09068285887481298</td></tr>
+                            <tr><td>2017.0</td><td>34.15625</td><td>26.865234375</td><td>1.2713922210105417</td><td>-0.10200316972588941</td></tr>
+                            <tr><td>1970.0</td><td>26.912087912087912</td><td>31.406593406593405</td><td>0.856892932120364</td><td>nan</td></tr>
+                          </tbody>
+                </table>
+                </div>
+                </details>
                 <!-- Query Block template -->
                <!--<section>
                 <h2>1. Template for questions</h2>
